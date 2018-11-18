@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Search for a Song</h1>
+    <form action="{{ url_for('song_search') }}" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.song1_id.label }}<br>
+            {{ form.song1_id(size=32) }}
+        </p>
+        <p>
+            {{ form.song2_id.label }}<br>
+            {{ form.song2_id(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
