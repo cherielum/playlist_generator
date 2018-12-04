@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ playlist.name() }}</h1>
+
+    <ol>
+        {% for track in playlist.tracks() %}
+            <li>{{ track.name() }}</li>
+        {% endfor %}
+    </ol>
+{% endblock %}

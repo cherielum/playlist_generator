@@ -2,7 +2,7 @@ from app import app
 from flask import request, render_template
 from spotipy import util
 from app.forms import SongSearchForm
-from app.models import AudioFeatures
+from app.models import AudioFeatures, Playlist
 
 import spotipy
 token = util.prompt_for_user_token('3artqygk5gf3tyb7vhcz8enal', 'playlist-read-private')
@@ -37,4 +37,11 @@ def audio_features():
     results = spotify.audio_features(tracks=tracks)
     return str(results)
 
+
+@app.route('/playlist/<playlist_id>')
+def playlist(playlist_id):
+    user_id = spotify.current_user()['id']
+    api_response = spotify.user_playlist(user_id, playlist_id)
+    playlist = Playlist(api_response)
+    return render_template('playlist.html', playlist=playlist)
 
