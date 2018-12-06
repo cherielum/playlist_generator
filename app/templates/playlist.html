@@ -4,8 +4,21 @@
     <h1>{{ playlist.name() }}</h1>
 
     <ol>
-        {% for track in playlist.tracks() %}
-            <li>{{ track.name() }}</li>
+        {% for i in range(items | length) %}
+            <li>
+                {{ items[i].track().artist_name() }} &mdash;
+                {{ items[i].track().name() }}
+                {% if i + 1 < items | length %}
+                    <form action="{{ url_for('recommended_track') }}" method="POST">
+                        {{ form.hidden_tag() }}
+                        <input type="hidden" name="playlist_id" value="{{ playlist.id() }}">
+                        <input type="hidden" name="song1_id" value="{{ items[i].track().id() }}">
+                        <input type="hidden" name="song2_id" value="{{ items[i+1].track().id() }}">
+                        <input type="hidden" name="position" value="{{ i+1 }}">
+                        <button type="submit">Insert Track</button>
+                    </form>
+                {% endif %}
+            </li>
         {% endfor %}
     </ol>
 {% endblock %}

@@ -46,11 +46,14 @@ class Playlist(object):
     >>> playlist.name()
     'Testing Playlist 2018'
 
-    >>> len(playlist.tracks())
+    >>> len(playlist.items())
     2
 
-    >>> playlist.tracks()[0].__class__.__name__
-    'Track'
+    >>> playlist.items()[0].__class__.__name__
+    'PlaylistItem'
+
+    >>> playlist.id()
+    '7qD7y5EnpXWNCMk3RpDFQ2'
     """
 
     def __init__(self, api_response):
@@ -59,22 +62,54 @@ class Playlist(object):
     def name(self):
         return self.api_response['name']
 
-    def tracks(self):
-        return [Track(data) for data in self.api_response['tracks']['items']]
+    def items(self):
+        return [PlaylistItem(data) for data in self.api_response['tracks']['items']]
+
+    def id(self):
+        return self.api_response['id']
 
 
 class Track():
     """
-    >>> api_response = {'added_at': '2018-12-04T01:28:42Z', 'added_by': {'external_urls': {'spotify': 'https://open.spotify.com/user/3artqygk5gf3tyb7vhcz8enal'}, 'href': 'https://api.spotify.com/v1/users/3artqygk5gf3tyb7vhcz8enal', 'id': '3artqygk5gf3tyb7vhcz8enal', 'type': 'user', 'uri': 'spotify:user:3artqygk5gf3tyb7vhcz8enal'}, 'is_local': False, 'primary_color': None, 'track': {'album': {'album_type': 'album', 'artists': [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ppQ1vjjme5Jtz2ceBFcWY'}, 'href': 'https://api.spotify.com/v1/artists/6ppQ1vjjme5Jtz2ceBFcWY', 'id': '6ppQ1vjjme5Jtz2ceBFcWY', 'name': 'Yoga Music', 'type': 'artist', 'uri': 'spotify:artist:6ppQ1vjjme5Jtz2ceBFcWY'}], 'available_markets': ['AD', 'AE', 'AR', 'AT', 'AU', 'BE', 'BG', 'BH', 'BO', 'BR', 'CA', 'CH', 'CL', 'CO', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES', 'FI', 'FR', 'GB', 'GR', 'GT', 'HK', 'HN', 'HU', 'ID', 'IE', 'IL', 'IS', 'IT', 'JO', 'JP', 'KW', 'LB', 'LI', 'LT', 'LU', 'LV', 'MA', 'MC', 'MT', 'MX', 'MY', 'NI', 'NL', 'NO', 'NZ', 'OM', 'PA', 'PE', 'PH', 'PL', 'PS', 'PT', 'PY', 'QA', 'RO', 'SA', 'SE', 'SG', 'SK', 'SV', 'TH', 'TN', 'TR', 'TW', 'US', 'UY', 'VN', 'ZA'], 'external_urls': {'spotify': 'https://open.spotify.com/album/1508kSLULYbyHDzGbTahVv'}, 'href': 'https://api.spotify.com/v1/albums/1508kSLULYbyHDzGbTahVv', 'id': '1508kSLULYbyHDzGbTahVv', 'images': [{'height': 640, 'url': 'https://i.scdn.co/image/f181188e81fb8d8a1333afe5d4d37a65cc704e2f', 'width': 640}, {'height': 300, 'url': 'https://i.scdn.co/image/9a01e445ed75fe11d1a473589c92241495d8833b', 'width': 300}, {'height': 64, 'url': 'https://i.scdn.co/image/ccbbf6d4c758f2f2ef73d44e2903d2da4d25b8cc', 'width': 64}], 'name': 'Instrumental Piano and Relaxing Piano Music for Yoga Spa Meditation Relaxation and Music for Spa', 'release_date': '2014-11-05', 'release_date_precision': 'day', 'total_tracks': 31, 'type': 'album', 'uri': 'spotify:album:1508kSLULYbyHDzGbTahVv'}, 'artists': [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ppQ1vjjme5Jtz2ceBFcWY'}, 'href': 'https://api.spotify.com/v1/artists/6ppQ1vjjme5Jtz2ceBFcWY', 'id': '6ppQ1vjjme5Jtz2ceBFcWY', 'name': 'Yoga Music', 'type': 'artist', 'uri': 'spotify:artist:6ppQ1vjjme5Jtz2ceBFcWY'}], 'available_markets': ['AD', 'AE', 'AR', 'AT', 'AU', 'BE', 'BG', 'BH', 'BO', 'BR', 'CA', 'CH', 'CL', 'CO', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES', 'FI', 'FR', 'GB', 'GR', 'GT', 'HK', 'HN', 'HU', 'ID', 'IE', 'IL', 'IS', 'IT', 'JO', 'JP', 'KW', 'LB', 'LI', 'LT', 'LU', 'LV', 'MA', 'MC', 'MT', 'MX', 'MY', 'NI', 'NL', 'NO', 'NZ', 'OM', 'PA', 'PE', 'PH', 'PL', 'PS', 'PT', 'PY', 'QA', 'RO', 'SA', 'SE', 'SG', 'SK', 'SV', 'TH', 'TN', 'TR', 'TW', 'US', 'UY', 'VN', 'ZA'], 'disc_number': 1, 'duration_ms': 144039, 'episode': False, 'explicit': False, 'external_ids': {'isrc': 'USA2P1477986'}, 'external_urls': {'spotify': 'https://open.spotify.com/track/2WwDvI6ZwXRS3VmISOqBkO'}, 'href': 'https://api.spotify.com/v1/tracks/2WwDvI6ZwXRS3VmISOqBkO', 'id': '2WwDvI6ZwXRS3VmISOqBkO', 'is_local': False, 'name': 'Pachelbel Canon in D', 'popularity': 46, 'preview_url': 'https://p.scdn.co/mp3-preview/8c6792a6012e301274d54e10ce6cc01c9b57c5e6?cid=4d1756ce0cde4907923b9b6f79314063', 'track': True, 'track_number': 25, 'type': 'track', 'uri': 'spotify:track:2WwDvI6ZwXRS3VmISOqBkO'}, 'video_thumbnail': {'url': None}}
+    >>> api_response = {'album': {'album_type': 'album', 'artists': [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ppQ1vjjme5Jtz2ceBFcWY'}, 'href': 'https://api.spotify.com/v1/artists/6ppQ1vjjme5Jtz2ceBFcWY', 'id': '6ppQ1vjjme5Jtz2ceBFcWY', 'name': 'Yoga Music', 'type': 'artist', 'uri': 'spotify:artist:6ppQ1vjjme5Jtz2ceBFcWY'}], 'available_markets': ['AD', 'AE', 'AR', 'AT', 'AU', 'BE', 'BG', 'BH', 'BO', 'BR', 'CA', 'CH', 'CL', 'CO', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES', 'FI', 'FR', 'GB', 'GR', 'GT', 'HK', 'HN', 'HU', 'ID', 'IE', 'IL', 'IS', 'IT', 'JO', 'JP', 'KW', 'LB', 'LI', 'LT', 'LU', 'LV', 'MA', 'MC', 'MT', 'MX', 'MY', 'NI', 'NL', 'NO', 'NZ', 'OM', 'PA', 'PE', 'PH', 'PL', 'PS', 'PT', 'PY', 'QA', 'RO', 'SA', 'SE', 'SG', 'SK', 'SV', 'TH', 'TN', 'TR', 'TW', 'US', 'UY', 'VN', 'ZA'], 'external_urls': {'spotify': 'https://open.spotify.com/album/1508kSLULYbyHDzGbTahVv'}, 'href': 'https://api.spotify.com/v1/albums/1508kSLULYbyHDzGbTahVv', 'id': '1508kSLULYbyHDzGbTahVv', 'images': [{'height': 640, 'url': 'https://i.scdn.co/image/f181188e81fb8d8a1333afe5d4d37a65cc704e2f', 'width': 640}, {'height': 300, 'url': 'https://i.scdn.co/image/9a01e445ed75fe11d1a473589c92241495d8833b', 'width': 300}, {'height': 64, 'url': 'https://i.scdn.co/image/ccbbf6d4c758f2f2ef73d44e2903d2da4d25b8cc', 'width': 64}], 'name': 'Instrumental Piano and Relaxing Piano Music for Yoga Spa Meditation Relaxation and Music for Spa', 'release_date': '2014-11-05', 'release_date_precision': 'day', 'total_tracks': 31, 'type': 'album', 'uri': 'spotify:album:1508kSLULYbyHDzGbTahVv'}, 'artists': [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ppQ1vjjme5Jtz2ceBFcWY'}, 'href': 'https://api.spotify.com/v1/artists/6ppQ1vjjme5Jtz2ceBFcWY', 'id': '6ppQ1vjjme5Jtz2ceBFcWY', 'name': 'Yoga Music', 'type': 'artist', 'uri': 'spotify:artist:6ppQ1vjjme5Jtz2ceBFcWY'}], 'available_markets': ['AD', 'AE', 'AR', 'AT', 'AU', 'BE', 'BG', 'BH', 'BO', 'BR', 'CA', 'CH', 'CL', 'CO', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES', 'FI', 'FR', 'GB', 'GR', 'GT', 'HK', 'HN', 'HU', 'ID', 'IE', 'IL', 'IS', 'IT', 'JO', 'JP', 'KW', 'LB', 'LI', 'LT', 'LU', 'LV', 'MA', 'MC', 'MT', 'MX', 'MY', 'NI', 'NL', 'NO', 'NZ', 'OM', 'PA', 'PE', 'PH', 'PL', 'PS', 'PT', 'PY', 'QA', 'RO', 'SA', 'SE', 'SG', 'SK', 'SV', 'TH', 'TN', 'TR', 'TW', 'US', 'UY', 'VN', 'ZA'], 'disc_number': 1, 'duration_ms': 144039, 'episode': False, 'explicit': False, 'external_ids': {'isrc': 'USA2P1477986'}, 'external_urls': {'spotify': 'https://open.spotify.com/track/2WwDvI6ZwXRS3VmISOqBkO'}, 'href': 'https://api.spotify.com/v1/tracks/2WwDvI6ZwXRS3VmISOqBkO', 'id': '2WwDvI6ZwXRS3VmISOqBkO', 'is_local': False, 'name': 'Pachelbel Canon in D', 'popularity': 46, 'preview_url': 'https://p.scdn.co/mp3-preview/8c6792a6012e301274d54e10ce6cc01c9b57c5e6?cid=4d1756ce0cde4907923b9b6f79314063', 'track': True, 'track_number': 25, 'type': 'track', 'uri': 'spotify:track:2WwDvI6ZwXRS3VmISOqBkO'}
 
     >>> track = Track(api_response)
 
     >>> track.name()
     'Pachelbel Canon in D'
+
+    >>> track.id()
+    '2WwDvI6ZwXRS3VmISOqBkO'
+
+    >>> track.artist_name()
+    'Yoga Music'
     """
 
     def __init__(self, api_response):
         self.api_response = api_response
 
     def name(self):
-        return self.api_response['track']['name']
+        return self.api_response['name']
+
+    def id(self):
+        return self.api_response['id']
+
+    def artist_name(self):
+        return self.api_response['artists'][0]['name']
+
+class PlaylistItem():
+    """
+    >>> api_response = {'added_at': '2018-12-04T01:28:42Z', 'added_by': {'external_urls': {'spotify': 'https://open.spotify.com/user/3artqygk5gf3tyb7vhcz8enal'}, 'href': 'https://api.spotify.com/v1/users/3artqygk5gf3tyb7vhcz8enal', 'id': '3artqygk5gf3tyb7vhcz8enal', 'type': 'user', 'uri': 'spotify:user:3artqygk5gf3tyb7vhcz8enal'}, 'is_local': False, 'primary_color': None, 'track': {'album': {'album_type': 'album', 'artists': [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ppQ1vjjme5Jtz2ceBFcWY'}, 'href': 'https://api.spotify.com/v1/artists/6ppQ1vjjme5Jtz2ceBFcWY', 'id': '6ppQ1vjjme5Jtz2ceBFcWY', 'name': 'Yoga Music', 'type': 'artist', 'uri': 'spotify:artist:6ppQ1vjjme5Jtz2ceBFcWY'}], 'available_markets': ['AD', 'AE', 'AR', 'AT', 'AU', 'BE', 'BG', 'BH', 'BO', 'BR', 'CA', 'CH', 'CL', 'CO', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES', 'FI', 'FR', 'GB', 'GR', 'GT', 'HK', 'HN', 'HU', 'ID', 'IE', 'IL', 'IS', 'IT', 'JO', 'JP', 'KW', 'LB', 'LI', 'LT', 'LU', 'LV', 'MA', 'MC', 'MT', 'MX', 'MY', 'NI', 'NL', 'NO', 'NZ', 'OM', 'PA', 'PE', 'PH', 'PL', 'PS', 'PT', 'PY', 'QA', 'RO', 'SA', 'SE', 'SG', 'SK', 'SV', 'TH', 'TN', 'TR', 'TW', 'US', 'UY', 'VN', 'ZA'], 'external_urls': {'spotify': 'https://open.spotify.com/album/1508kSLULYbyHDzGbTahVv'}, 'href': 'https://api.spotify.com/v1/albums/1508kSLULYbyHDzGbTahVv', 'id': '1508kSLULYbyHDzGbTahVv', 'images': [{'height': 640, 'url': 'https://i.scdn.co/image/f181188e81fb8d8a1333afe5d4d37a65cc704e2f', 'width': 640}, {'height': 300, 'url': 'https://i.scdn.co/image/9a01e445ed75fe11d1a473589c92241495d8833b', 'width': 300}, {'height': 64, 'url': 'https://i.scdn.co/image/ccbbf6d4c758f2f2ef73d44e2903d2da4d25b8cc', 'width': 64}], 'name': 'Instrumental Piano and Relaxing Piano Music for Yoga Spa Meditation Relaxation and Music for Spa', 'release_date': '2014-11-05', 'release_date_precision': 'day', 'total_tracks': 31, 'type': 'album', 'uri': 'spotify:album:1508kSLULYbyHDzGbTahVv'}, 'artists': [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ppQ1vjjme5Jtz2ceBFcWY'}, 'href': 'https://api.spotify.com/v1/artists/6ppQ1vjjme5Jtz2ceBFcWY', 'id': '6ppQ1vjjme5Jtz2ceBFcWY', 'name': 'Yoga Music', 'type': 'artist', 'uri': 'spotify:artist:6ppQ1vjjme5Jtz2ceBFcWY'}], 'available_markets': ['AD', 'AE', 'AR', 'AT', 'AU', 'BE', 'BG', 'BH', 'BO', 'BR', 'CA', 'CH', 'CL', 'CO', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES', 'FI', 'FR', 'GB', 'GR', 'GT', 'HK', 'HN', 'HU', 'ID', 'IE', 'IL', 'IS', 'IT', 'JO', 'JP', 'KW', 'LB', 'LI', 'LT', 'LU', 'LV', 'MA', 'MC', 'MT', 'MX', 'MY', 'NI', 'NL', 'NO', 'NZ', 'OM', 'PA', 'PE', 'PH', 'PL', 'PS', 'PT', 'PY', 'QA', 'RO', 'SA', 'SE', 'SG', 'SK', 'SV', 'TH', 'TN', 'TR', 'TW', 'US', 'UY', 'VN', 'ZA'], 'disc_number': 1, 'duration_ms': 144039, 'episode': False, 'explicit': False, 'external_ids': {'isrc': 'USA2P1477986'}, 'external_urls': {'spotify': 'https://open.spotify.com/track/2WwDvI6ZwXRS3VmISOqBkO'}, 'href': 'https://api.spotify.com/v1/tracks/2WwDvI6ZwXRS3VmISOqBkO', 'id': '2WwDvI6ZwXRS3VmISOqBkO', 'is_local': False, 'name': 'Pachelbel Canon in D', 'popularity': 46, 'preview_url': 'https://p.scdn.co/mp3-preview/8c6792a6012e301274d54e10ce6cc01c9b57c5e6?cid=4d1756ce0cde4907923b9b6f79314063', 'track': True, 'track_number': 25, 'type': 'track', 'uri': 'spotify:track:2WwDvI6ZwXRS3VmISOqBkO'}, 'video_thumbnail': {'url': None}}
+
+    >>> item = PlaylistItem(api_response)
+
+    >>> item.track().__class__.__name__
+    'Track'
+    """
+
+    def __init__(self, api_response):
+        self.api_response = api_response
+
+
+    def track(self):
+        return Track(self.api_response['track'])
