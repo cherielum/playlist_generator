@@ -5,15 +5,30 @@ from app.forms import SongSearchForm
 from app.models import AudioFeatures, Playlist, Track
 
 import spotipy
+import os
+#client_id', 'client_secret', and 'redirect_uri'
+oauth = spotipy.oauth2.SpotifyOAuth(
+    client_id=os.environ['SPOTIPY_CLIENT_ID'],
+    client_secret=os.environ['SPOTIPY_CLIENT_SECRET'],
+    redirect_uri=os.environ['SPOTIPY_REDIRECT_URI'])
 token = util.prompt_for_user_token('3artqygk5gf3tyb7vhcz8enal', 'playlist-read-private playlist-modify-private playlist-modify-public')
 spotify = spotipy.Spotify(auth=token)
 
 
 @app.route('/')
-@app.route('/index')
 def index():
     form = SongSearchForm()
     return render_template('index.html', form=form)
+
+
+@app.route('/login')
+def login():
+    return redirect(oauth.get_authorize_url())
+
+# http://localhost:5000/authorization?code=AQAT2y0pq0GFQDf2tHnGZPTaIVP5Snm5_PKZMXtgdiN3i9_9tZ8UwOeNwMVBdC4rZY9D9CUvam-98DALhE3k7vHQcBX7tpnzf4iF0fY8uQ8KcPxlwXzBhpDfx2cnN4vB7tzOz6catPDnkxwX-vua1ylTnLyGuBrS-Y5e5kxMcmiSov0mT5cceHfFkgOo40cCD2sbqDujPoBh5q8
+@app.route('/authorization')
+def authorization():
+    return oauth.get_access_token(request.args['code'])
 
 
 @app.route('/recommended_track', methods=['POST'])
@@ -44,7 +59,7 @@ def recommended_track():
         spotify.user_playlist_add_tracks(user_id, form.playlist_id.data, [track.id()], form.position.data)
         return redirect(url_for('playlist', playlist_id=form.playlist_id.data))
     else:
-        return redirect(request.referrer)
+        return redirect(request.referrer or url_for('index'))
 
 
 @app.route('/audio_features')
