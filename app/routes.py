@@ -44,7 +44,7 @@ def recommended_track():
         spotify.user_playlist_add_tracks(user_id, form.playlist_id.data, [track.id()], form.position.data)
         return redirect(url_for('playlist', playlist_id=form.playlist_id.data))
     else:
-        return render_template('index.html', form=form)
+        return redirect(request.referrer)
 
 
 @app.route('/audio_features')
