@@ -1,38 +1,55 @@
 from app import app
-from flask import request, render_template, redirect, url_for
+from flask import request, render_template, redirect, url_for, session
 from spotipy import util
 from app.forms import SongSearchForm
 from app.models import AudioFeatures, Playlist, Track
+from redis import Redis
+from uuid import uuid4
 
 import spotipy
 import os
-#client_id', 'client_secret', and 'redirect_uri'
+
+redis = Redis(host='localhost', port=6379, db=0)
 oauth = spotipy.oauth2.SpotifyOAuth(
     client_id=os.environ['SPOTIPY_CLIENT_ID'],
     client_secret=os.environ['SPOTIPY_CLIENT_SECRET'],
     redirect_uri=os.environ['SPOTIPY_REDIRECT_URI'])
-token = util.prompt_for_user_token('3artqygk5gf3tyb7vhcz8enal', 'playlist-read-private playlist-modify-private playlist-modify-public')
-spotify = spotipy.Spotify(auth=token)
 
+def get_access_token():
+    return redis.get('user_id.{}.access_token'.format(session['id'])).decode('utf-8')
+
+def create_spotify():
+    if 'id' in session:
+        access_token = get_access_token()
+        spotify = spotipy.Spotify(access_token)
+    return spotify
 
 @app.route('/')
 def index():
     form = SongSearchForm()
-    return render_template('index.html', form=form)
+    user = create_spotify()
+    return render_template('index.html',
+        form=form)
 
 
 @app.route('/login')
 def login():
     return redirect(oauth.get_authorize_url())
 
-# http://localhost:5000/authorization?code=AQAT2y0pq0GFQDf2tHnGZPTaIVP5Snm5_PKZMXtgdiN3i9_9tZ8UwOeNwMVBdC4rZY9D9CUvam-98DALhE3k7vHQcBX7tpnzf4iF0fY8uQ8KcPxlwXzBhpDfx2cnN4vB7tzOz6catPDnkxwX-vua1ylTnLyGuBrS-Y5e5kxMcmiSov0mT5cceHfFkgOo40cCD2sbqDujPoBh5q8
+
 @app.route('/authorization')
 def authorization():
-    return oauth.get_access_token(request.args['code'])
+    auth = oauth.get_access_token(request.args['code'])
+    session['id'] = str(uuid4())
+    key = 'user_id.{}.access_token'.format(session['id'])
+    redis.set(key, auth['access_token'])
+    print(key, auth)
+    return redirect(url_for('index'))
 
 
 @app.route('/recommended_track', methods=['POST'])
 def recommended_track():
+    spotify = create_spotify()
     form = SongSearchForm()
     if form.validate_on_submit():
         track_ids = [form.song1_id.data, form.song2_id.data]
@@ -64,6 +81,7 @@ def recommended_track():
 
 @app.route('/audio_features')
 def audio_features():
+    spotify = create_spotify()
     tracks = [request.args['track_id']]
     results = spotify.audio_features(tracks=tracks)
     return str(results)
@@ -71,6 +89,7 @@ def audio_features():
 
 @app.route('/playlist/<playlist_id>')
 def playlist(playlist_id):
+    spotify = create_spotify()
     user_id = spotify.current_user()['id']
     api_response = spotify.user_playlist(user_id, playlist_id)
     playlist = Playlist(api_response)
