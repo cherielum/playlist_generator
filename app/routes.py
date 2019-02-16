@@ -9,7 +9,7 @@ from uuid import uuid4
 import spotipy
 import os
 
-redis = Redis(host='localhost', port=6379, db=0)
+redis = Redis.from_url(os.environ['REDIS_URL'])
 oauth = spotipy.oauth2.SpotifyOAuth(
     client_id=os.environ['SPOTIPY_CLIENT_ID'],
     client_secret=os.environ['SPOTIPY_CLIENT_SECRET'],
