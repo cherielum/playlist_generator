@@ -13,7 +13,8 @@ redis = Redis.from_url(os.environ['REDIS_URL'])
 oauth = spotipy.oauth2.SpotifyOAuth(
     client_id=os.environ['SPOTIPY_CLIENT_ID'],
     client_secret=os.environ['SPOTIPY_CLIENT_SECRET'],
-    redirect_uri=os.environ['SPOTIPY_REDIRECT_URI'])
+    redirect_uri=os.environ['SPOTIPY_REDIRECT_URI'],
+    scope='playlist-read-private playlist-modify-private playlist-modify-public playlist-read-collaborative')
 
 def get_access_token():
     return redis.get('user_id.{}.access_token'.format(session['id'])).decode('utf-8')
