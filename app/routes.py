@@ -41,10 +41,10 @@ def create_spotify():
 def requires_spotify(route):
     @wraps(route)
     def decorated_function(*args, **kwargs):
-        spotify = create_spotify()
-        if spotify is None:
-            return redirect(url_for('login'))
         try:
+            spotify = create_spotify()
+            if spotify is None:
+                return redirect(url_for('login'))
             return route(spotify=spotify, *args, **kwargs)
         except spotipy.client.SpotifyException as error:
             if error.http_status == 401:
