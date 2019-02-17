@@ -1,14 +1,14 @@
 from app import app
-from flask import request, render_template, redirect, url_for, session
-from spotipy import util
 from app.forms import SongSearchForm
 from app.models import AudioFeatures, Playlist, Track
-from redis import Redis
-from uuid import uuid4
+from flask import request, render_template, redirect, url_for, session
 from functools import wraps
-
-import spotipy
+from redis import Redis
+from spotipy import util
+from uuid import uuid4
 import os
+import spotipy
+
 
 redis = Redis.from_url(os.environ['REDIS_URL'])
 oauth = spotipy.oauth2.SpotifyOAuth(
