@@ -19,12 +19,15 @@ oauth = spotipy.oauth2.SpotifyOAuth(
 
 
 def get_access_token():
-    return redis.get('user_id.{}.access_token'.format(session['id'])).decode('utf-8')
+    if 'id' in session:
+        token = redis.get('user_id.{}.access_token'.format(session['id']))
+        if token:
+            return token.decode('utf-8')
 
 
 def create_spotify():
-    if 'id' in session:
-        access_token = get_access_token()
+    access_token = get_access_token()
+    if access_token:
         spotify = spotipy.Spotify(access_token)
         return spotify
 
