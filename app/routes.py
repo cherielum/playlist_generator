@@ -17,8 +17,10 @@ oauth = spotipy.oauth2.SpotifyOAuth(
     redirect_uri=os.environ['SPOTIPY_REDIRECT_URI'],
     scope='playlist-read-private playlist-modify-private playlist-modify-public playlist-read-collaborative')
 
+
 def get_access_token():
     return redis.get('user_id.{}.access_token'.format(session['id'])).decode('utf-8')
+
 
 def create_spotify():
     if 'id' in session:
