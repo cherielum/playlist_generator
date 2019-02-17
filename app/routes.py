@@ -5,6 +5,7 @@ from app.forms import SongSearchForm
 from app.models import AudioFeatures, Playlist, Track
 from redis import Redis
 from uuid import uuid4
+from functools import wraps
 
 import spotipy
 import os
@@ -23,12 +24,23 @@ def create_spotify():
     if 'id' in session:
         access_token = get_access_token()
         spotify = spotipy.Spotify(access_token)
-    return spotify
+        return spotify
+
+
+def requires_spotify(route):
+    @wraps(route)
+    def decorated_function(*args, **kwargs):
+        spotify = create_spotify()
+        if spotify is None:
+            return redirect(url_for('login'))
+        return route(spotify=spotify, *args, **kwargs)
+
+    return decorated_function
+
 
 @app.route('/')
 def index():
     form = SongSearchForm()
-    user = create_spotify()
     return render_template('index.html',
         form=form)
 
@@ -49,8 +61,8 @@ def authorization():
 
 
 @app.route('/recommended_track', methods=['POST'])
-def recommended_track():
-    spotify = create_spotify()
+@requires_spotify
+def recommended_track(spotify):
     form = SongSearchForm()
     if form.validate_on_submit():
         track_ids = [form.song1_id.data, form.song2_id.data]
@@ -81,16 +93,16 @@ def recommended_track():
 
 
 @app.route('/audio_features')
-def audio_features():
-    spotify = create_spotify()
+@requires_spotify
+def audio_features(spotify):
     tracks = [request.args['track_id']]
     results = spotify.audio_features(tracks=tracks)
     return str(results)
 
 
 @app.route('/playlist/<playlist_id>')
-def playlist(playlist_id):
-    spotify = create_spotify()
+@requires_spotify
+def playlist(playlist_id, spotify):
     user_id = spotify.current_user()['id']
     api_response = spotify.user_playlist(user_id, playlist_id)
     playlist = Playlist(api_response)
