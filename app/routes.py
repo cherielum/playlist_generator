@@ -38,7 +38,12 @@ def requires_spotify(route):
         spotify = create_spotify()
         if spotify is None:
             return redirect(url_for('login'))
-        return route(spotify=spotify, *args, **kwargs)
+        try:
+            return route(spotify=spotify, *args, **kwargs)
+        except spotipy.client.SpotifyException as error:
+            if error.http_status == 401:
+                return redirect(url_for('login'))
+            raise error
 
     return decorated_function
 
