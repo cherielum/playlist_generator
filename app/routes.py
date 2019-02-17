@@ -8,6 +8,7 @@ from spotipy import util
 from uuid import uuid4
 import os
 import spotipy
+import time
 
 
 redis = Redis.from_url(os.environ['REDIS_URL'])
@@ -20,9 +21,14 @@ oauth = spotipy.oauth2.SpotifyOAuth(
 
 def get_access_token():
     if 'id' in session:
-        token = redis.get('user_id.{}.access_token'.format(session['id']))
-        if token:
-            return token.decode('utf-8')
+        expires_at = redis.get('user_id.{}.expires_at'.format(session['id']))
+        if expires_at is None or float(expires_at) <= time.time():
+            refresh_token = redis.get('user_id.{}.refresh_token'.format(session['id']))
+            auth = oauth.refresh_access_token(refresh_token)
+            store_auth(session['id'], auth)
+        access_token = redis.get('user_id.{}.access_token'.format(session['id']))
+        if access_token:
+            return access_token.decode('utf-8')
 
 
 def create_spotify():
@@ -48,6 +54,14 @@ def requires_spotify(route):
     return decorated_function
 
 
+def store_auth(session_id, auth):
+    access_token = auth['access_token']
+    expires_at = auth['expires_at']
+    refresh_token = auth['refresh_token']
+    redis.set('user_id.{}.access_token'.format(session_id), access_token)
+    redis.set('user_id.{}.expires_at'.format(session_id), expires_at)
+    redis.set('user_id.{}.refresh_token'.format(session_id), refresh_token)
+
 @app.route('/')
 def index():
     form = SongSearchForm()
@@ -62,11 +76,9 @@ def login():
 
 @app.route('/authorization')
 def authorization():
-    auth = oauth.get_access_token(request.args['code'])
     session['id'] = str(uuid4())
-    key = 'user_id.{}.access_token'.format(session['id'])
-    redis.set(key, auth['access_token'])
-    print(key, auth)
+    auth = oauth.get_access_token(request.args['code'])
+    store_auth(session['id'], auth)
     return redirect(url_for('index'))
 
 
